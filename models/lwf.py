@@ -69,8 +69,10 @@ class Lwf(ContinualModel):
         self.current_task += 1
 
     def observe(self, cur_data, next_data):
+        if self.current_task == 1:
+            return 0.0
         cur_x, cur_y, cur_idx = cur_data
-        next_x, next_y, next_idx = next_data # lwf-cl doesn't use the next domain's data.
+        # next_x, next_y, next_idx = next_data # lwf-cl doesn't use the next domain's data.
 
         self.opt.zero_grad()
         outputs = self.net(cur_x)

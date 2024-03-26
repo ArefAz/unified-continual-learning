@@ -27,6 +27,7 @@ def setup_buffer(self, cur_train_loader, next_train_loader):
     # by default.
     sample_num = self.memory.buffer_size // self.current_task
     samples_per_class = sample_num // self.cpt
+    # samples_per_class = 500
     
     examples = [[] for _ in range(self.cpt)]
     labels = [[] for _ in range(self.cpt)]
@@ -101,6 +102,8 @@ class Er(ContinualModel):
         return past_data
 
     def observe(self, cur_data, next_data):
+        if self.current_task == 1:
+            return 0.0
         inputs, labels, _, = cur_data
 
         self.opt.zero_grad()

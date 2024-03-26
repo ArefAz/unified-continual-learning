@@ -74,6 +74,8 @@ class DER(ContinualModel):
         return past_data
 
     def observe(self, cur_data, next_data):
+        if self.current_task == 1:
+            return 0.0
         inputs, labels, _, = cur_data
         
         bs1 = inputs.shape[0]

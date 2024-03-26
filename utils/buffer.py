@@ -66,7 +66,7 @@ class DomainBuffer:
     Buffer for single (class) of the data.
     """
     SAMPLE_METHODS = ('random')
-    MAX_SIZE = 4096
+    MAX_SIZE = 1000
     def __init__(self, max_size, device, input_size, num_classes, domain_id, examples=None, preds=None, labels=None):
         self.buffer_size = max_size # maximum number of data to be stored.
         self.mem_size = 0 # current number of data stored.
@@ -230,6 +230,8 @@ class Buffer:
             num_samples = self.buffer_size // self.n_domains
             for buf in self.domain_buffers:
                 buf.resample(num_samples)
+
+        print(f"Memory bank updated, current size: {len(self)}")
 
         # reset the indices and data. 
         self.reset()

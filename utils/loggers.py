@@ -41,6 +41,7 @@ class Logger:
     def __init__(self, dataset_str: str,
                  model_str: str) -> None:
         self.accs = [] # average accs 
+        self.aucs = []
         self.accs_iplus1 = [] # average accs
         self.dataset = dataset_str
         self.model = model_str
@@ -52,6 +53,7 @@ class Logger:
     def dump(self):
         return {
             'acc_matrix': self.acc_matrix,
+            'auc_matrix': self.auc_matrix,
             'accs': self.accs,
             'accs_iplus1': self.accs_iplus1,
             'fwt': self.fwt,
@@ -61,6 +63,7 @@ class Logger:
 
     def load(self, dic):
         self.acc_matrix = dic['acc_matrix']
+        self.auc_matrix = dic['auc_matrix']
         self.accs = dic['accs']
         self.accs_iplus1 = dic['accs_iplus1']
         self.fwt = dic['fwt']
@@ -89,9 +92,12 @@ class Logger:
         self.forgetting = forgetting(results)
         return self.forgetting
 
-    def add_average_i(self, results, i):
+    def add_average_i(self, results, i, type):
         acc = average_i(results, i)
-        self.accs.append(acc)
+        if type == "acc":
+            self.accs.append(acc)
+        else:
+            self.aucs.append(acc)
         return acc
 
     def add_average_iplus1(self, results, i):
@@ -102,6 +108,10 @@ class Logger:
     def add_acc_matrix(self, results):
         self.acc_matrix = np.array(results)
 
+    def add_auc_matrix(self, results):
+        self.auc_matrix = np.array(results)
+
+
     def write(self, args: Dict[str, Any]) -> None:
         """
         writes out the logged value along with its arguments.
@@ -110,9 +120,12 @@ class Logger:
         wrargs = args.copy()
 
         wrargs['acc_matrix'] = self.acc_matrix
+        wrargs['auc_matrix'] = self.auc_matrix
 
         for i, acc in enumerate(self.accs):
             wrargs['accmean_task' + str(i + 1)] = acc
+        for i, auc in enumerate(self.aucs):
+            wrargs['aucmean_task' + str(i + 1)] = auc
         for i, acc in enumerate(self.accs_iplus1):
             wrargs['accmean_iplus1_task' + str(i + 1)] = acc
 

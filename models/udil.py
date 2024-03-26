@@ -99,7 +99,7 @@ class UDIL(ContinualModel):
         self.n_domains = dataset.N_TASKS
         # the buffer is registered using the maximum length of the dataset
         # TODO: might cause too much memory in the GPU.
-        self.register_buffer("logits", torch.randn(dataset.MAX_N_SAMPLES_PER_TASK, self.cpt))
+        self.register_buffer("logits", torch.empty(dataset.MAX_N_SAMPLES_PER_TASK, self.cpt))
 
         buffer_batch_size = args.buffer_batch_size
         if args.buffer_batch_size == 0:
@@ -242,7 +242,10 @@ class UDIL(ContinualModel):
         with torch.no_grad():
             for _, (x, _, idx) in enumerate(cur_train_loader):
                 # set the logits produced by the previous model
-                self.logits[idx] = self.net(x.to(self.device), returnt='logits')
+                try:
+                    self.logits[idx] = self.net(x.to(self.device), returnt='logits').detach()
+                except:
+                    print(idx)
         self.net.train()
 
     def setup_past_err(self, cur_train_loader):
@@ -448,6 +451,7 @@ class UDIL(ContinualModel):
     def update_weights(self, cur_data, past_data):
         # first task training
         if self.current_task <= 1:
+            return 0.0, None
             cur_x, cur_y, _ = cur_data
             self.opt.zero_grad()
             logits, _, feats = self.net(cur_x, returnt='all')
@@ -726,6 +730,8 @@ class UDIL(ContinualModel):
 
     def compute_supcon_loss(self, cur_feats, cur_labels, cur_domains=None, past_feats=None, past_labels=None, past_domains=None):
         samples_per_domain = cur_feats.shape[0] if past_feats is None else past_feats.shape[0] // self.current_task
+        if samples_per_domain == 0:
+            samples_per_domain = 1
         batch_cur_feats, batch_cur_labels = torch.split(cur_feats, samples_per_domain), torch.split(cur_labels, samples_per_domain)
         if cur_domains is not None:
             batch_cur_domains = torch.split(cur_domains, samples_per_domain)

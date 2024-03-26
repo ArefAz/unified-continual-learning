@@ -31,6 +31,7 @@ class Joint(ContinualModel):
 
     def __init__(self, backbone, loss, args, transform):
         super(Joint, self).__init__(backbone, loss, args, transform)
+        self.current_task = 0
 
     def setup_joint_loader(self, dataset):
         trainsets = [x.dataset for x in dataset.train_loaders]
@@ -40,12 +41,15 @@ class Joint(ContinualModel):
         self.data_iter = iter(self.data_loader)
 
     def observe(self, cur_data, next_data):
+        self.current_task += 1
+        if self.current_task == 1:
+            return 0.0
         try: 
-            x, y, idx = self.data_iter.next()
+            x, y, idx = next(self.data_iter)
             x, y = x.to(self.device), y.to(self.device)
         except:
             self.data_iter = iter(self.data_loader)
-            x, y, idx = self.data_iter.next()
+            x, y, idx = next(self.data_iter)
             x, y = x.to(self.device), y.to(self.device)
 
         self.opt.zero_grad()

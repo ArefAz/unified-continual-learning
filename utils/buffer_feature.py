@@ -15,7 +15,7 @@ class DomainBuffer:
     Buffer for single (class) of the data.
     """
     SAMPLE_METHODS = ('random')
-    MAX_SIZE = 4096
+    MAX_SIZE = 1000
     def __init__(self, max_size, device, input_size, num_classes, num_features, domain_id, examples=None, preds=None, feats=None, labels=None):
         self.buffer_size = max_size # maximum number of data to be stored.
         self.mem_size = 0 # current number of data stored.
@@ -46,7 +46,7 @@ class DomainBuffer:
 
         if examples.shape[0] <= self.buffer_size: 
             self.mem_size = mem_size = examples.shape[0]
-            self.examples[:mem_size], self.preds[:mem_size], self.feats[:mem_size], self.labels[:mem_size] = examples, preds, feats, labels
+            self.examples[:mem_size], self.preds[:mem_size], self.feats[:mem_size], self.labels[:mem_size] = examples.detach(), preds.detach(), feats.detach(), labels.detach()
         else:
             self.mem_size = self.buffer_size
             self.examples, self.preds, self.feats, self.labels = self.resample(mem_size, examples, preds, feats, labels)
@@ -169,7 +169,7 @@ class Buffer:
 
         # create and add new domain buffer.
         self.domain_buffers.append(DomainBuffer(
-            DomainBuffer.MAX_SIZE, 
+            DomainBuffer.MAX_SIZE,
             self.device, input_size=self.input_size, num_classes=self.num_classes, num_features=feats.shape[1],
             domain_id=self.n_domains, 
             examples=examples, labels=labels, preds=preds, feats=feats
@@ -182,6 +182,7 @@ class Buffer:
             num_samples = self.buffer_size // self.n_domains
             for buf in self.domain_buffers:
                 buf.resample(num_samples)
+        print(f"Memory bank updated, current size: {len(self)}")
 
         # reset the indices and data. 
         self.reset()
@@ -244,8 +245,10 @@ def setup_buffer(self, cur_train_loader, next_train_loader):
     Note: self must have attribute 'memory' to represent the replay buffer.
     """
     # by default.
-    sample_num = self.memory.buffer_size // self.current_task
-    samples_per_class = sample_num // self.cpt
+    # sample_num = self.memory.buffer_size // self.current_task
+    # samples_per_class = sample_num // self.cpt
+    # samples_per_class = self.memory.buffer_size // self.cpt
+    samples_per_class = 500
     
     examples = [[] for _ in range(self.cpt)]
     labels = [[] for _ in range(self.cpt)]

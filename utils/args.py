@@ -21,6 +21,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
                         help='Which dataset to perform experiments on.')
     parser.add_argument('--model', type=str, required=True,
                         help='Model name.', choices=get_all_models())
+    parser.add_argument('--new-pkl', type=str, required=True,)
                             
     parser.add_argument('--lr', type=float, required=True,
                         help='Learning rate.')
@@ -63,12 +64,12 @@ def add_management_args(parser: ArgumentParser) -> None:
                         help='percentage of the validation data.')
     parser.add_argument('--checkpoint', action='store_true',
                         help='Whether checkpoint the model backbone parameters.')
-    parser.add_argument('--ignore_other_metrics', default=0, choices=[0, 1], type=int,
+    parser.add_argument('--ignore-other-metrics', default=0, choices=[0, 1], type=int,
                         help='disable additional metrics')
     parser.add_argument('--debug-mode', type=int, default=0, help='Run only a few forward steps per epoch')
     parser.add_argument('--nowand', action='store_true', help='Inhibit wandb logging')
-    parser.add_argument('--wandb-entity', type=str, default='haizhou-shi', help='Wandb entity') # change it to your own wandb account.
-    parser.add_argument('--wandb-project', type=str, default='UDIL', help='Wandb project name')
+    parser.add_argument('--wandb-entity', type=str, default='aref-azizpour', help='Wandb entity') # change it to your own wandb account.
+    parser.add_argument('--wandb-project', type=str, default='cl', help='Wandb project name')
     parser.add_argument('--wandb-name', type=str, default='', help="Wandb run's name")
     
 

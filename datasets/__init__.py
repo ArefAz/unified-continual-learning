@@ -6,24 +6,24 @@ from argparse import Namespace
 from datasets.utils.continual_dataset import ContinualDataset
 
 
-def get_all_models():
+def get_all_datasets():
     return [model.split('.')[0] for model in os.listdir('datasets')
             if not model.find('__') > -1 and 'py' in model]
 
 
 NAMES = {}
-for model in get_all_models():
-    mod = importlib.import_module('datasets.' + model)
-    dataset_classes_name = [x for x in mod.__dir__() if 'type' in str(type(getattr(mod, x))) and 'ContinualDataset' in str(inspect.getmro(getattr(mod, x))[1:])]
+
+for dataset in get_all_datasets():
+    datas = importlib.import_module('datasets.' + dataset)
+    dataset_classes_name = [x for x in datas.__dir__() if 'type' in str(type(getattr(datas, x))) and 'ContinualDataset' in str(inspect.getmro(getattr(datas, x))[1:])]
     for d in dataset_classes_name:
-        c = getattr(mod, d)
+        c = getattr(datas, d)
         NAMES[c.NAME] = c
-
-    gcl_dataset_classes_name = [x for x in mod.__dir__() if 'type' in str(type(getattr(mod, x))) and 'GCLDataset' in str(inspect.getmro(getattr(mod, x))[1:])]
+    
+    gcl_dataset_classes_name = [x for x in datas.__dir__() if 'type' in str(type(getattr(datas, x))) and 'GCLDataset' in str(inspect.getmro(getattr(datas, x))[1:])]
     for d in gcl_dataset_classes_name:
-        c = getattr(mod, d)
+        c = getattr(datas, d)
         NAMES[c.NAME] = c
-
 
 def get_dataset(args: Namespace) -> ContinualDataset:
     """

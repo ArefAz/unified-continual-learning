@@ -46,6 +46,7 @@ def parse_args():
     parser.add_argument('--load_best_args', action='store_true',
                         help='Loads the best arguments for each method, '
                              'dataset and memory buffer.')
+    parser.add_argument('--new-pkl', type=str, required=True,)
     torch.set_num_threads(4)
     add_management_args(parser)
     add_backbone_args(parser) # args for the backbone
@@ -85,7 +86,7 @@ def parse_args():
 
     return args
 
-@iex
+# @iex
 def main(args=None):
     lecun_fix()
     if args is None:

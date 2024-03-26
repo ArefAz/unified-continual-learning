@@ -17,5 +17,9 @@ for backbone in get_all_backbones():
 
 def get_backbone(backbone_name, indim, hiddim, outdim, args):
     """Get the network architectures for encoder, predictor, discriminator."""
-    return names[backbone_name](indim, hiddim, outdim, args)
+    if backbone_name == 'mislnet':
+        indim = 256
+        hiddim = 2
+        outdim = 6
+    return names[backbone_name](indim, hiddim, outdim, args=args)
 
